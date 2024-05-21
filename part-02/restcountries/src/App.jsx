@@ -8,6 +8,7 @@ import Filter from "./components/Filter";
 const App = () => {
   const [countries, setCountries] = useState([]);
   const [filter, setFilter] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   const filteredCountries = useMemo(() => {
     return countries.filter((c) =>
@@ -15,21 +16,30 @@ const App = () => {
     );
   }, [countries, filter]);
 
+  const shownCountry =
+    filteredCountries.length === 1 ? filteredCountries[0] : selectedCountry;
+
   useEffect(() => {
     axios
       .get("https://studies.cs.helsinki.fi/restcountries/api/all")
       .then((res) => setCountries(res.data));
   }, []);
 
-  const handleFilterChange = (e) => setFilter(e.target.value);
+  const handleFilterChange = (e) => {
+    setSelectedCountry(null);
+    setFilter(e.target.value);
+  };
 
   return (
     <div>
       <Filter value={filter} onChange={handleFilterChange} />
-      {filteredCountries.length === 1 ? (
-        <Country country={filteredCountries[0]} />
+      {shownCountry ? (
+        <Country country={shownCountry} />
       ) : (
-        <Countries countries={filteredCountries} />
+        <Countries
+          countries={filteredCountries}
+          handleSelect={setSelectedCountry}
+        />
       )}
     </div>
   );
