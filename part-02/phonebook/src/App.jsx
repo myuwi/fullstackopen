@@ -54,18 +54,27 @@ const App = () => {
       );
 
       if (confirmed) {
-        personService.update(oldPerson.id, newPerson).then((updatedPerson) => {
-          const newPersons = persons.map((person) =>
-            person.id != updatedPerson.id ? person : updatedPerson,
-          );
-          setPersons(newPersons);
-          showNotification({
-            message: `Updated ${newPerson.name}`,
-            type: "success",
+        personService
+          .update(oldPerson.id, newPerson)
+          .then((updatedPerson) => {
+            const newPersons = persons.map((person) =>
+              person.id !== updatedPerson.id ? person : updatedPerson,
+            );
+            setPersons(newPersons);
+            showNotification({
+              message: `Updated ${newPerson.name}`,
+              type: "success",
+            });
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch(() => {
+            setPersons(persons.filter((person) => person.id !== oldPerson.id));
+            showNotification({
+              message: `Information of ${oldPerson.name} has already been removed from server`,
+              type: "error",
+            });
           });
-          setNewName("");
-          setNewNumber("");
-        });
       }
       return;
     }
