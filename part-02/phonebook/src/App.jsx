@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import personService from "./services/persons";
 
 import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 
@@ -10,6 +11,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [notification, setNotification] = useState(null);
+  const notificationHideTimeout = useRef(null);
 
   const filteredPersons = persons.filter((p) =>
     p.name.toLowerCase().includes(filter.toLowerCase()),
@@ -20,6 +23,21 @@ const App = () => {
       setPersons(initialPersons);
     });
   }, []);
+
+  const showNotification = (data) => {
+    // Cancel existing notification hide timeout when a new notification
+    // is created so old timeout doesn't hide the new notification
+    if (notificationHideTimeout.current) {
+      clearTimeout(notificationHideTimeout.current);
+    }
+
+    setNotification(data);
+
+    notificationHideTimeout.current = setTimeout(() => {
+      setNotification(null);
+      notificationHideTimeout.current = null;
+    }, 5000);
+  };
 
   const addPerson = (e) => {
     e.preventDefault();
@@ -41,6 +59,10 @@ const App = () => {
             person.id != updatedPerson.id ? person : updatedPerson,
           );
           setPersons(newPersons);
+          showNotification({
+            message: `Updated ${newPerson.name}`,
+            type: "success",
+          });
           setNewName("");
           setNewNumber("");
         });
@@ -50,6 +72,10 @@ const App = () => {
 
     personService.create(newPerson).then((person) => {
       setPersons(persons.concat(person));
+      showNotification({
+        message: `Added ${newPerson.name}`,
+        type: "success",
+      });
       setNewName("");
       setNewNumber("");
     });
@@ -59,6 +85,10 @@ const App = () => {
     if (window.confirm(`Delete ${person.name}?`)) {
       personService.delete(person.id);
       setPersons(persons.filter((p) => p.id !== person.id));
+      showNotification({
+        message: `Deleted ${person.name}`,
+        type: "success",
+      });
     }
   };
 
@@ -77,6 +107,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} />
       <Filter value={filter} onChange={handleFilterChange} />
       <h3>Add a new</h3>
       <PersonForm
