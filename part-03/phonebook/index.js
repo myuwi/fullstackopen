@@ -104,11 +104,14 @@ app.post("/api/persons", async (req, res) => {
   }
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  persons = persons.filter((person) => person.id !== id);
-
-  res.sendStatus(204);
+app.delete("/api/persons/:id", async (req, res) => {
+  try {
+    await Person.findByIdAndDelete(req.params.id);
+    res.sendStatus(204);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 });
 
 const unknownEndpoint = (_, res) => {
