@@ -22,7 +22,7 @@ app.use(
 
 app.use(express.static("dist"));
 
-app.get("/info", async (_, res) => {
+app.get("/info", async (_, res, next) => {
   const date = new Date();
   try {
     const count = await Person.estimatedDocumentCount();
@@ -45,7 +45,7 @@ app.get("/api/persons", async (_, res, next) => {
   }
 });
 
-app.get("/api/persons/:id", async (req, res) => {
+app.get("/api/persons/:id", async (req, res, next) => {
   try {
     const person = await Person.findById(req.params.id);
 
@@ -129,6 +129,7 @@ const unknownEndpoint = (_, res) => {
 
 app.use(unknownEndpoint);
 
+// eslint-disable-next-line no-unused-vars -- error handlers must take 4 parameters
 const errorHandler = (err, _req, res, _next) => {
   console.error(err.message);
 
