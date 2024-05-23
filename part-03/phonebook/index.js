@@ -53,13 +53,12 @@ app.get("/info", (_, res) => {
   `);
 });
 
-app.get("/api/persons", async (_, res) => {
+app.get("/api/persons", async (_, res, next) => {
   try {
     const persons = await Person.find({});
     res.json(persons);
   } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
+    next(err);
   }
 });
 
@@ -74,7 +73,7 @@ app.get("/api/persons/:id", (req, res) => {
   res.json(person);
 });
 
-app.post("/api/persons", async (req, res) => {
+app.post("/api/persons", async (req, res, next) => {
   const { name, number } = req.body;
 
   if (!name || !number) {
@@ -99,18 +98,16 @@ app.post("/api/persons", async (req, res) => {
 
     res.json(newPerson.toJSON());
   } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
+    next(err);
   }
 });
 
-app.delete("/api/persons/:id", async (req, res) => {
+app.delete("/api/persons/:id", async (req, res, next) => {
   try {
     await Person.findByIdAndDelete(req.params.id);
     res.sendStatus(204);
   } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
+    next(err);
   }
 });
 
@@ -119,5 +116,17 @@ const unknownEndpoint = (_, res) => {
 };
 
 app.use(unknownEndpoint);
+
+const errorHandler = (err, _req, res, _next) => {
+  console.error(err.message);
+
+  if (err.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+
+  res.sendStatus(500);
+};
+
+app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
