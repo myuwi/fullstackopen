@@ -1,7 +1,9 @@
 import express from "express";
 
-const app = express();
 const PORT = 3001;
+
+const app = express();
+app.use(express.json());
 
 let persons = [
   {
@@ -45,6 +47,20 @@ app.get("/api/persons/:id", (req, res) => {
   if (!person) {
     return res.sendStatus(404);
   }
+
+  res.json(person);
+});
+
+app.post("/api/persons", (req, res) => {
+  const { name, number } = req.body;
+
+  const person = {
+    id: Math.floor(Math.random() * 2 ** 16),
+    name,
+    number,
+  };
+
+  persons.push(person);
 
   res.json(person);
 });
