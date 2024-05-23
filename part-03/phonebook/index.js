@@ -74,7 +74,7 @@ app.get("/api/persons/:id", (req, res) => {
   res.json(person);
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", async (req, res) => {
   const { name, number } = req.body;
 
   if (!name || !number) {
@@ -83,21 +83,25 @@ app.post("/api/persons", (req, res) => {
     });
   }
 
-  if (persons.some((p) => p.name === name)) {
-    return res.status(409).json({
-      error: "name must be unique",
+  try {
+    if (await Person.exists({ name })) {
+      return res.status(409).json({
+        error: "name must be unique",
+      });
+    }
+
+    const person = new Person({
+      name,
+      number,
     });
+
+    const newPerson = await person.save();
+
+    res.json(newPerson.toJSON());
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
   }
-
-  const person = {
-    id: Math.floor(Math.random() * 2 ** 16),
-    name,
-    number,
-  };
-
-  persons.push(person);
-
-  res.json(person);
 });
 
 app.delete("/api/persons/:id", (req, res) => {
