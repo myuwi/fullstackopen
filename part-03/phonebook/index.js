@@ -1,6 +1,9 @@
+import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
+
+import Person from "./models/person.js";
 
 const PORT = process.env.PORT || 3001;
 
@@ -50,8 +53,14 @@ app.get("/info", (_, res) => {
   `);
 });
 
-app.get("/api/persons", (_, res) => {
-  res.json(persons);
+app.get("/api/persons", async (_, res) => {
+  try {
+    const persons = await Person.find({});
+    res.json(persons);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 });
 
 app.get("/api/persons/:id", (req, res) => {
