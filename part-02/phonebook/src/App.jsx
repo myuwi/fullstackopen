@@ -68,26 +68,43 @@ const App = () => {
             setNewName("");
             setNewNumber("");
           })
-          .catch(() => {
-            setPersons(persons.filter((person) => person.id !== oldPerson.id));
-            showNotification({
-              message: `Information of ${oldPerson.name} has already been removed from server`,
-              type: "error",
-            });
+          .catch((err) => {
+            if (err?.response?.status === 404) {
+              setPersons(
+                persons.filter((person) => person.id !== oldPerson.id),
+              );
+              showNotification({
+                message: `Information of ${oldPerson.name} has already been removed from server`,
+                type: "error",
+              });
+            } else {
+              showNotification({
+                message: err?.response?.data?.error || "Failed to update",
+                type: "error",
+              });
+            }
           });
       }
       return;
     }
 
-    personService.create(newPerson).then((person) => {
-      setPersons(persons.concat(person));
-      showNotification({
-        message: `Added ${newPerson.name}`,
-        type: "success",
+    personService
+      .create(newPerson)
+      .then((person) => {
+        setPersons(persons.concat(person));
+        showNotification({
+          message: `Added ${newPerson.name}`,
+          type: "success",
+        });
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch((err) => {
+        showNotification({
+          message: err?.response?.data?.error || "Failed to add",
+          type: "error",
+        });
       });
-      setNewName("");
-      setNewNumber("");
-    });
   };
 
   const deletePerson = (person) => {
