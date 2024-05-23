@@ -102,6 +102,28 @@ app.post("/api/persons", async (req, res, next) => {
   }
 });
 
+app.put("/api/persons/:id", async (req, res, next) => {
+  const { name, number } = req.body;
+
+  if (!name || !number) {
+    return res.status(400).json({
+      error: "name or number is missing",
+    });
+  }
+
+  try {
+    const updatedPerson = await Person.findByIdAndUpdate(
+      req.params.id,
+      { name, number },
+      { new: true },
+    );
+
+    res.json(updatedPerson);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.delete("/api/persons/:id", async (req, res, next) => {
   try {
     await Person.findByIdAndDelete(req.params.id);
