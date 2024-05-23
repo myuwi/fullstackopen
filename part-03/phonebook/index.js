@@ -22,35 +22,18 @@ app.use(
 
 app.use(express.static("dist"));
 
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
-app.get("/info", (_, res) => {
+app.get("/info", async (_, res) => {
   const date = new Date();
-  res.send(`
-    <p>Phonebook has info for ${persons.length} people</p>
+  try {
+    const count = await Person.estimatedDocumentCount();
+
+    res.send(`
+    <p>Phonebook has info for ${count} people</p>
     <p>${date}</p>
   `);
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.get("/api/persons", async (_, res, next) => {
@@ -62,15 +45,18 @@ app.get("/api/persons", async (_, res, next) => {
   }
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find((person) => person.id === id);
+app.get("/api/persons/:id", async (req, res) => {
+  try {
+    const person = await Person.findById(req.params.id);
 
-  if (!person) {
-    return res.sendStatus(404);
+    if (!person) {
+      return res.sendStatus(404);
+    }
+
+    res.json(person);
+  } catch (err) {
+    next(err);
   }
-
-  res.json(person);
 });
 
 app.post("/api/persons", async (req, res, next) => {
