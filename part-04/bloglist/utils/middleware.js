@@ -5,9 +5,17 @@ morgan.token("req-body", (req) =>
   req.method === "POST" ? JSON.stringify(req.body) : "",
 );
 
-export const requestLogger = morgan(
-  ":method :url :status :res[content-length] - :response-time ms :req-body",
-);
+const noop = (_req, _res, next) => next();
+
+export const requestLogger = () => {
+  if (process.env.NODE_ENV === "test") {
+    return noop;
+  }
+
+  return morgan(
+    ":method :url :status :res[content-length] - :response-time ms :req-body",
+  );
+};
 
 export const unknownEndpoint = (_, res) => {
   res.status(404).send({ error: "unknown endpoint" });

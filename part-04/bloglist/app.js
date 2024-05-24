@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
+import "express-async-errors";
 
 import config from "./utils/config.js";
 import logger from "./utils/logger.js";
@@ -19,7 +20,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(middleware.requestLogger);
+app.use(middleware.requestLogger());
 
 app.use("/api/blogs", blogsRouter);
 
