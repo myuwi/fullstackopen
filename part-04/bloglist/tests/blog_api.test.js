@@ -39,3 +39,18 @@ test("blogs have an id", async () => {
     assert.strictEqual(blog._id, undefined);
   });
 });
+
+test("a valid blog can be added", async () => {
+  const newBlog = helpers.blogs[2];
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const blogsInDb = await helpers.blogsInDb();
+
+  assert.strictEqual(blogsInDb.length, initialBlogs.length + 1);
+  assert(blogsInDb.some((blog) => blog.title === newBlog.title));
+});
