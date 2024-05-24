@@ -32,9 +32,33 @@ const mostBlogs = (blogs) => {
   };
 };
 
+const mostLikes = (blogs) => {
+  if (!blogs.length) return undefined;
+
+  const authors = {};
+  let mostLikesAuthorName;
+
+  blogs.forEach((blog) => {
+    const authorName = blog.author;
+    let authorLikes = authors[authorName] || 0;
+    authors[authorName] = authorLikes += blog.likes;
+
+    const mostTotalLikes = authors[mostLikesAuthorName] || 0;
+    if (authorLikes > mostTotalLikes) {
+      mostLikesAuthorName = authorName;
+    }
+  });
+
+  return {
+    author: mostLikesAuthorName,
+    likes: authors[mostLikesAuthorName],
+  };
+};
+
 export default {
   dummy,
   totalLikes,
   favoriteBlog,
   mostBlogs,
+  mostLikes,
 };
