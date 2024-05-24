@@ -106,6 +106,36 @@ describe("when there is initially some blogs saved", () => {
     });
   });
 
+  describe("updating a blog", () => {
+    test("succeeds when id is valid", async () => {
+      const blogsInDbBefore = await helpers.blogsInDb();
+      const idToUpdate = blogsInDbBefore[0].id;
+      const update = { likes: blogsInDbBefore[0].likes + 1 };
+
+      const res = await api
+        .put(`/api/blogs/${idToUpdate}`)
+        .send(update)
+        .expect(200);
+
+      const blogsInDbAfter = await helpers.blogsInDb();
+      assert.deepStrictEqual(res.body, blogsInDbAfter[0]);
+      assert.strictEqual(blogsInDbAfter[0].likes, update.likes);
+    });
+
+    test("fails when blog doesn't exist", async () => {
+      const blogsInDbBefore = await helpers.blogsInDb();
+      const nonExistentBlog = helpers.blogs[2];
+
+      await api
+        .put(`/api/blogs/${nonExistentBlog._id}`)
+        .send(nonExistentBlog)
+        .expect(404);
+
+      const blogsInDbAfter = await helpers.blogsInDb();
+      assert.deepStrictEqual(blogsInDbAfter, blogsInDbBefore);
+    });
+  });
+
   describe("deleting a blog", () => {
     test("succeeds when id is valid", async () => {
       const blogsInDbBefore = await helpers.blogsInDb();
