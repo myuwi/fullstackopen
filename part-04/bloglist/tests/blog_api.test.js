@@ -7,9 +7,9 @@ import app from "../app.js";
 
 import Blog from "../models/blog.js";
 
-import { blogs } from "./test_helper.js";
+import * as helpers from "./test_helper.js";
 
-const initialBlogs = blogs.splice(1, 2);
+const initialBlogs = helpers.blogs.splice(1, 2);
 
 const api = supertest(app);
 
@@ -30,4 +30,12 @@ test("blogs are returned as json", async () => {
 test("there are two blogs", async () => {
   const res = await api.get("/api/blogs");
   assert.strictEqual(res.body.length, 2);
+});
+
+test("blogs have an id", async () => {
+  const blogs = await helpers.blogsInDb();
+  blogs.forEach((blog) => {
+    assert(blog.id);
+    assert.strictEqual(blog._id, undefined);
+  });
 });

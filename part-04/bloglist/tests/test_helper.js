@@ -1,3 +1,5 @@
+import Blog from "../models/blog.js";
+
 export const blogs = [
   {
     _id: "5a422a851b54a676234d17f7",
@@ -48,3 +50,8 @@ export const blogs = [
     __v: 0,
   },
 ];
+
+export const blogsInDb = async () => {
+  const blogs = await Blog.find({});
+  return blogs.map((blog) => blog.toJSON());
+};
