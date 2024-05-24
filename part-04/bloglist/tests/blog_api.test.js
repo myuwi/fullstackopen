@@ -54,3 +54,19 @@ test("a valid blog can be added", async () => {
   assert.strictEqual(blogsInDb.length, initialBlogs.length + 1);
   assert(blogsInDb.some((blog) => blog.title === newBlog.title));
 });
+
+test("blog likes default to 0 when missing", async () => {
+  const newBlog = {
+    title: "A blog with 0 likes",
+    author: "Unpopular Author",
+    url: "localhost",
+  };
+
+  const res = await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  assert.strictEqual(res.body.likes, 0);
+});
