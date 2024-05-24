@@ -97,3 +97,23 @@ describe("favorite blog", () => {
     assert.deepStrictEqual(result, favoriteBlog);
   });
 });
+
+describe("most blogs", () => {
+  test("of empty list is undefined", () => {
+    const result = listHelper.mostBlogs([]);
+    assert.strictEqual(result, undefined);
+  });
+
+  test("when list has only one blog, equals the author of that", () => {
+    const blog = blogs[0];
+    const result = listHelper.mostBlogs([blog]);
+    const author = { author: blog.author, blogs: 1 };
+    assert.deepStrictEqual(result, author);
+  });
+
+  test("of a bigger list is calculated right", () => {
+    const result = listHelper.mostBlogs(blogs);
+    const author = { author: "Robert C. Martin", blogs: 3 };
+    assert.deepStrictEqual(result, author);
+  });
+});
