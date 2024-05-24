@@ -105,4 +105,18 @@ describe("when there is initially some blogs saved", () => {
       assert.strictEqual(blogsInDb.length, initialBlogs.length);
     });
   });
+
+  describe("deleting a blog", () => {
+    test("succeeds when id is valid", async () => {
+      const blogsInDbBefore = await helpers.blogsInDb();
+      const idToDelete = blogsInDbBefore[0].id;
+
+      await api.delete(`/api/blogs/${idToDelete}`).expect(204);
+
+      const blogsInDbAfter = await helpers.blogsInDb();
+
+      assert.strictEqual(blogsInDbAfter.length, blogsInDbBefore.length - 1);
+      assert(!blogsInDbAfter.some((blog) => blog.id === idToDelete));
+    });
+  });
 });
