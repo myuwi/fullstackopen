@@ -70,3 +70,35 @@ test("blog likes default to 0 when missing", async () => {
 
   assert.strictEqual(res.body.likes, 0);
 });
+
+test("blog title is required", async () => {
+  const newBlog = {
+    author: "Author",
+    url: "localhost",
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(400)
+    .expect("Content-Type", /application\/json/);
+
+  const blogsInDb = await helpers.blogsInDb();
+  assert.strictEqual(blogsInDb.length, initialBlogs.length);
+});
+
+test("blog url is required", async () => {
+  const newBlog = {
+    title: "Blog without an url",
+    author: "Author",
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(400)
+    .expect("Content-Type", /application\/json/);
+
+  const blogsInDb = await helpers.blogsInDb();
+  assert.strictEqual(blogsInDb.length, initialBlogs.length);
+});
