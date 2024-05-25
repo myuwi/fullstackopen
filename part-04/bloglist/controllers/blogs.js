@@ -1,4 +1,7 @@
 import express from "express";
+import jwt from "jsonwebtoken";
+
+import config from "../utils/config.js";
 
 import Blog from "../models/blog.js";
 import User from "../models/user.js";
@@ -15,7 +18,16 @@ blogsRouter.get("/", async (_, res) => {
 });
 
 blogsRouter.post("/", async (req, res) => {
-  const user = await User.findOne({});
+  const token = req.get("authorization")?.split(" ")[1];
+  const decodedToken = jwt.verify(token, config.SECRET);
+
+  if (!decodedToken.id) {
+    return res.status(401).json({
+      error: "invalid token",
+    });
+  }
+
+  const user = await User.findById(decodedToken.id);
 
   const blog = new Blog({
     ...req.body,
