@@ -1,11 +1,12 @@
 import bcrypt from "bcrypt";
 import express from "express";
+
 import User from "../models/user.js";
 
 const usersRouter = express.Router();
 
 usersRouter.get("/", async (_, res) => {
-  const users = await User.find({});
+  const users = await User.find({}).populate("blogs", { user: 0, likes: 0 });
   res.json(users);
 });
 

@@ -1,17 +1,31 @@
 import express from "express";
+
 import Blog from "../models/blog.js";
+import User from "../models/user.js";
 
 const blogsRouter = express.Router();
 
 blogsRouter.get("/", async (_, res) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog.find({}).populate("user", {
+    id: 1,
+    username: 1,
+    name: 1,
+  });
   res.json(blogs);
 });
 
 blogsRouter.post("/", async (req, res) => {
-  const blog = new Blog(req.body);
-  const result = await blog.save();
-  res.status(201).json(result);
+  const user = await User.findOne({});
+
+  const blog = new Blog({
+    ...req.body,
+    user: user._id,
+  });
+  const savedBlog = await blog.save();
+  user.blogs = user.blogs.concat(savedBlog._id);
+  await user.save();
+
+  res.status(201).json(savedBlog);
 });
 
 blogsRouter.put("/:id", async (req, res) => {
