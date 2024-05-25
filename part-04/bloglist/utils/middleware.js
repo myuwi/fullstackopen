@@ -17,6 +17,11 @@ export const requestLogger = () => {
   );
 };
 
+export const tokenExtractor = (req, _, next) => {
+  req.token = req.get("authorization")?.split(" ")[1];
+  next();
+};
+
 export const unknownEndpoint = (_, res) => {
   res.status(404).send({ error: "unknown endpoint" });
 };

@@ -18,8 +18,7 @@ blogsRouter.get("/", async (_, res) => {
 });
 
 blogsRouter.post("/", async (req, res) => {
-  const token = req.get("authorization")?.split(" ")[1];
-  const decodedToken = jwt.verify(token, config.SECRET);
+  const decodedToken = jwt.verify(req.token, config.SECRET);
 
   if (!decodedToken.id) {
     return res.status(401).json({
