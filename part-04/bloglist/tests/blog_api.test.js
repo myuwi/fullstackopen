@@ -1,17 +1,56 @@
 import assert from "node:assert";
-import { after, beforeEach, describe, test } from "node:test";
+import { after, before, beforeEach, describe, test } from "node:test";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import supertest from "supertest";
 
 import app from "../app.js";
+import config from "../utils/config.js";
 
 import Blog from "../models/blog.js";
+import User from "../models/user.js";
 
 import * as helpers from "./test_helper.js";
 
-const initialBlogs = helpers.blogs.splice(1, 2);
+const initialBlogs = helpers.blogs.slice(0, 2);
 
 const api = supertest(app);
+
+const users = [
+  {
+    username: "root",
+    password: "password",
+    token: undefined,
+  },
+];
+
+// Set up users and blogs for tests
+before(async () => {
+  await User.deleteMany({});
+
+  const usersToInsert = await Promise.all(
+    users.map(async ({ username, password }) => {
+      return {
+        username,
+        passwordHash: await bcrypt.hash(password, 10),
+      };
+    }),
+  );
+  const insertedUsers = await User.insertMany(usersToInsert);
+
+  insertedUsers.forEach((user, i) => {
+    users[i].id = user.id;
+
+    const userForToken = { username: user.username, id: user.id };
+    const token = jwt.sign(userForToken, config.SECRET, { expiresIn: "1d" });
+    users[i].token = token;
+  });
+
+  initialBlogs.forEach((blog) => {
+    blog.user = users[0].id;
+  });
+});
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -47,6 +86,7 @@ describe("when there is initially some blogs saved", () => {
 
       await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${users[0].token}`)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/);
@@ -66,6 +106,7 @@ describe("when there is initially some blogs saved", () => {
 
       const res = await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${users[0].token}`)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/);
@@ -81,6 +122,7 @@ describe("when there is initially some blogs saved", () => {
 
       await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${users[0].token}`)
         .send(newBlog)
         .expect(400)
         .expect("Content-Type", /application\/json/);
@@ -97,12 +139,23 @@ describe("when there is initially some blogs saved", () => {
 
       await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${users[0].token}`)
         .send(newBlog)
         .expect(400)
         .expect("Content-Type", /application\/json/);
 
       const blogsInDb = await helpers.blogsInDb();
       assert.strictEqual(blogsInDb.length, initialBlogs.length);
+    });
+
+    test("fails when token is not provided", async () => {
+      const newBlog = helpers.blogs[2];
+
+      await api
+        .post("/api/blogs")
+        .send(newBlog)
+        .expect(401)
+        .expect("Content-Type", /application\/json/);
     });
   });
 
@@ -112,14 +165,20 @@ describe("when there is initially some blogs saved", () => {
       const idToUpdate = blogsInDbBefore[0].id;
       const update = { likes: blogsInDbBefore[0].likes + 1 };
 
-      const res = await api
+      await api
         .put(`/api/blogs/${idToUpdate}`)
+        .set("Authorization", `Bearer ${users[0].token}`)
         .send(update)
         .expect(200);
 
       const blogsInDbAfter = await helpers.blogsInDb();
-      assert.deepStrictEqual(res.body, blogsInDbAfter[0]);
-      assert.strictEqual(blogsInDbAfter[0].likes, update.likes);
+
+      const expected = {
+        ...blogsInDbBefore[0],
+        ...update,
+      };
+
+      assert.deepStrictEqual(blogsInDbAfter[0], expected);
     });
 
     test("fails when blog doesn't exist", async () => {
@@ -128,6 +187,7 @@ describe("when there is initially some blogs saved", () => {
 
       await api
         .put(`/api/blogs/${nonExistentBlog._id}`)
+        .set("Authorization", `Bearer ${users[0].token}`)
         .send(nonExistentBlog)
         .expect(404);
 
@@ -141,7 +201,10 @@ describe("when there is initially some blogs saved", () => {
       const blogsInDbBefore = await helpers.blogsInDb();
       const idToDelete = blogsInDbBefore[0].id;
 
-      await api.delete(`/api/blogs/${idToDelete}`).expect(204);
+      await api
+        .delete(`/api/blogs/${idToDelete}`)
+        .set("Authorization", `Bearer ${users[0].token}`)
+        .expect(204);
 
       const blogsInDbAfter = await helpers.blogsInDb();
 
