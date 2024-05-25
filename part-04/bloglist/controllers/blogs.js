@@ -1,10 +1,5 @@
 import express from "express";
-import jwt from "jsonwebtoken";
-
-import config from "../utils/config.js";
-
 import Blog from "../models/blog.js";
-import User from "../models/user.js";
 
 const blogsRouter = express.Router();
 
@@ -18,15 +13,12 @@ blogsRouter.get("/", async (_, res) => {
 });
 
 blogsRouter.post("/", async (req, res) => {
-  const decodedToken = jwt.verify(req.token, config.SECRET);
-
-  if (!decodedToken.id) {
+  const user = req.user;
+  if (!user) {
     return res.status(401).json({
       error: "invalid token",
     });
   }
-
-  const user = await User.findById(decodedToken.id);
 
   const blog = new Blog({
     ...req.body,
@@ -56,9 +48,8 @@ blogsRouter.put("/:id", async (req, res) => {
 });
 
 blogsRouter.delete("/:id", async (req, res) => {
-  const decodedToken = jwt.verify(req.token, config.SECRET);
-
-  if (!decodedToken.id) {
+  const user = req.user;
+  if (!user) {
     return res.status(401).json({
       error: "invalid token",
     });
@@ -70,7 +61,7 @@ blogsRouter.delete("/:id", async (req, res) => {
     return res.sendStatus(404);
   }
 
-  if (blog.user.toString() !== decodedToken.id) {
+  if (blog.user.toString() !== user.id) {
     return res.status(403).json({
       error: "this blog is owned by another user",
     });

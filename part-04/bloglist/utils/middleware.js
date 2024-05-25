@@ -1,5 +1,10 @@
 import morgan from "morgan";
+import jwt from "jsonwebtoken";
+
+import config from "../utils/config.js";
 import logger from "../utils/logger.js";
+
+import User from "../models/user.js";
 
 morgan.token("req-body", (req) =>
   req.method === "POST" ? JSON.stringify(req.body) : "",
@@ -17,8 +22,14 @@ export const requestLogger = () => {
   );
 };
 
-export const tokenExtractor = (req, _, next) => {
-  req.token = req.get("authorization")?.split(" ")[1];
+export const userExtractor = async (req, _, next) => {
+  const token = req.get("authorization")?.split(" ")[1];
+
+  if (token) {
+    const decodedToken = jwt.verify(token, config.SECRET);
+    req.user = await User.findById(decodedToken.id);
+  }
+
   next();
 };
 
