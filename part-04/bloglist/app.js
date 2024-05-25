@@ -8,6 +8,7 @@ import logger from "./utils/logger.js";
 import * as middleware from "./utils/middleware.js";
 
 import blogsRouter from "./controllers/blogs.js";
+import loginRouter from "./controllers/login.js";
 import usersRouter from "./controllers/users.js";
 
 logger.info("connecting to", config.MONGODB_URI);
@@ -25,6 +26,7 @@ app.use(middleware.requestLogger());
 
 app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/login", loginRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
