@@ -1,9 +1,11 @@
 import { useState } from "react";
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, onLike }) => {
   const [open, setOpen] = useState(false);
   const toggleOpen = () => setOpen(!open);
   const label = open ? "hide" : "view";
+
+  const handleLike = () => onLike(blog);
 
   return (
     <div className="blog">
@@ -14,7 +16,7 @@ const Blog = ({ blog }) => {
         <div>
           <div>{blog.url}</div>
           <div>
-            likes {blog.likes} <button>like</button>
+            likes {blog.likes} <button onClick={handleLike}>like</button>
           </div>
           <div>{blog.user.name || blog.user.username}</div>
         </div>
