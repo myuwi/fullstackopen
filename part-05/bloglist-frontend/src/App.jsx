@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Blog from "./components/Blog";
 import CreateBlogForm from "./components/CreateBlogForm";
+import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
+  const [notification, setNotification] = useState(null);
+  const notificationHideTimeout = useRef(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -28,6 +31,23 @@ const App = () => {
     }
   }, []);
 
+  const hideNotification = () => {
+    setNotification(null);
+    notificationHideTimeout.current = null;
+  };
+
+  const showNotification = (data) => {
+    // Cancel existing notification hide timeout when a new notification
+    // is created so old timeout doesn't hide the new notification
+    if (notificationHideTimeout.current) {
+      clearTimeout(notificationHideTimeout.current);
+    }
+
+    setNotification(data);
+
+    notificationHideTimeout.current = setTimeout(hideNotification, 5000);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -37,25 +57,46 @@ const App = () => {
 
       blogService.setToken(user.token);
       setUser(user);
+      hideNotification();
       setUsername("");
       setPassword("");
-    } catch (err) {}
+    } catch (err) {
+      showNotification({
+        message: "wrong username or password",
+        type: "error",
+      });
+    }
   };
 
   const handleLogout = () => {
     window.localStorage.removeItem("blogsUser");
     setUser(null);
+    hideNotification();
   };
 
   const handleCreate = async (e) => {
-    const createdBlog = await blogService.create(e);
-    setBlogs(blogs.concat(createdBlog));
+    try {
+      const createdBlog = await blogService.create(e);
+      setBlogs(blogs.concat(createdBlog));
+      showNotification({
+        message: `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
+        type: "success",
+      });
+    } catch (err) {
+      showNotification({
+        message: "failed to create blog",
+        type: "error",
+      });
+      // ugly and spaghetti, but simplest way to cancel clearing fields on error
+      throw err;
+    }
   };
 
   if (!user) {
     return (
       <div>
         <h2>log in to application</h2>
+        <Notification notification={notification} />
         <form onSubmit={handleLogin}>
           <div>
             username
@@ -86,6 +127,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <Notification notification={notification} />
       <p>
         {user.name || user.username} logged in
         <button onClick={handleLogout}>logout</button>
