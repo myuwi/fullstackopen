@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const Blog = ({ blog, deletable, onLike, onDelete }) => {
   const [open, setOpen] = useState(false);
@@ -25,6 +26,13 @@ const Blog = ({ blog, deletable, onLike, onDelete }) => {
       )}
     </div>
   );
+};
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  deletable: PropTypes.bool.isRequired,
+  onLike: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default Blog;
