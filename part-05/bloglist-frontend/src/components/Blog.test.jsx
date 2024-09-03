@@ -1,5 +1,6 @@
 import { describe, test, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import Blog from "./Blog";
 
 describe("Blog", () => {
@@ -28,7 +29,14 @@ describe("Blog", () => {
     expect(screen.queryByText(blog.url)).not.toBeInTheDocument();
   });
 
-    const url = screen.queryByText(blog.url);
-    assert.isNull(url);
+  test("can be opened", async () => {
+    const user = userEvent.setup();
+    render(<Blog {...props} />);
+
+    const button = screen.getByRole("button", { name: "view" });
+    await user.click(button);
+
+    expect(screen.getByText(`likes ${blog.likes}`)).toBeInTheDocument();
+    expect(screen.getByText(blog.url)).toBeInTheDocument();
   });
 });
