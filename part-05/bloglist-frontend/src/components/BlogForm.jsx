@@ -20,27 +20,30 @@ const BlogForm = ({ handleCreate }) => {
       <div>
         title:
         <input
+          aria-label="Title"
+          name="Title"
           type="text"
           value={title}
-          name="Title"
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
       <div>
         author:
         <input
+          aria-label="Author"
+          name="Author"
           type="text"
           value={author}
-          name="Author"
           onChange={(e) => setAuthor(e.target.value)}
         />
       </div>
       <div>
         url:
         <input
+          aria-label="Url"
+          name="Url"
           type="text"
           value={url}
-          name="Url"
           onChange={(e) => setUrl(e.target.value)}
         />
       </div>
