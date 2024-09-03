@@ -18,15 +18,30 @@ const App = () => {
     fetchBlogs();
   }, []);
 
+  useEffect(() => {
+    const loggedUser = window.localStorage.getItem("blogsUser");
+    if (loggedUser) {
+      const user = JSON.parse(loggedUser);
+      setUser(user);
+    }
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       const user = await loginService.login({ username, password });
+      window.localStorage.setItem("blogsUser", JSON.stringify(user));
+
       setUser(user);
       setUsername("");
       setPassword("");
     } catch (err) {}
+  };
+
+  const handleLogout = () => {
+    window.localStorage.removeItem("blogsUser");
+    setUser(null);
   };
 
   if (!user) {
@@ -37,18 +52,20 @@ const App = () => {
           <div>
             username
             <input
+              aria-label="Username"
+              name="Username"
               type="text"
               value={username}
-              name="Username"
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
           <div>
             password
             <input
+              aria-label="Password"
+              name="Password"
               type="password"
               value={password}
-              name="Password"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
@@ -61,7 +78,10 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <p>{user.username} logged in</p>
+      <p>
+        {user.name || user.username} logged in
+        <button onClick={handleLogout}>logout</button>
+      </p>
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
       ))}
