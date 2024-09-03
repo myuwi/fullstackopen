@@ -8,6 +8,7 @@ import loginService from "./services/login";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
+  const sortedBlogs = blogs.toSorted((a, b) => b.likes - a.likes);
   const [notification, setNotification] = useState(null);
   const notificationHideTimeout = useRef(null);
   const [username, setUsername] = useState("");
@@ -150,7 +151,7 @@ const App = () => {
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
         <BlogForm handleCreate={handleCreate} />
       </Togglable>
-      {blogs.map((blog) => (
+      {sortedBlogs.map((blog) => (
         <Blog key={blog.id} blog={blog} onLike={handleLike} />
       ))}
     </div>
