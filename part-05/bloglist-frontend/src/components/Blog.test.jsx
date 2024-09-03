@@ -12,7 +12,7 @@ describe("Blog", () => {
     user: { username: "usr", name: "Test User" },
   };
 
-  const props = {
+  const defaultProps = {
     blog,
     deletable: false,
     onLike: () => {},
@@ -20,7 +20,7 @@ describe("Blog", () => {
   };
 
   test("renders minimized", () => {
-    render(<Blog {...props} />);
+    render(<Blog {...defaultProps} />);
 
     const element = screen.getByText(`${blog.title} ${blog.author}`);
     expect(element).toBeInTheDocument();
@@ -31,12 +31,29 @@ describe("Blog", () => {
 
   test("can be opened", async () => {
     const user = userEvent.setup();
-    render(<Blog {...props} />);
+    render(<Blog {...defaultProps} />);
 
     const button = screen.getByRole("button", { name: "view" });
     await user.click(button);
 
     expect(screen.getByText(`likes ${blog.likes}`)).toBeInTheDocument();
     expect(screen.getByText(blog.url)).toBeInTheDocument();
+  });
+
+  test("clicking like triggers callback function", async () => {
+    const user = userEvent.setup();
+    const mockLikeHandler = vi.fn();
+    const props = { ...defaultProps, onLike: mockLikeHandler };
+
+    render(<Blog {...props} />);
+
+    const button = screen.getByRole("button", { name: "view" });
+    await user.click(button);
+
+    const likeButton = screen.getByRole("button", { name: "like" });
+    await user.click(likeButton);
+    await user.click(likeButton);
+
+    expect(mockLikeHandler).toHaveBeenCalledTimes(2);
   });
 });
