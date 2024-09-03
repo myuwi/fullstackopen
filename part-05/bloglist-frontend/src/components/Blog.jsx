@@ -1,11 +1,12 @@
 import { useState } from "react";
 
-const Blog = ({ blog, onLike }) => {
+const Blog = ({ blog, deletable, onLike, onDelete }) => {
   const [open, setOpen] = useState(false);
   const toggleOpen = () => setOpen(!open);
   const label = open ? "hide" : "view";
 
   const handleLike = () => onLike(blog);
+  const handleDelete = () => onDelete(blog);
 
   return (
     <div className="blog">
@@ -19,6 +20,7 @@ const Blog = ({ blog, onLike }) => {
             likes {blog.likes} <button onClick={handleLike}>like</button>
           </div>
           <div>{blog.user.name || blog.user.username}</div>
+          {deletable && <button onClick={handleDelete}>remove</button>}
         </div>
       )}
     </div>

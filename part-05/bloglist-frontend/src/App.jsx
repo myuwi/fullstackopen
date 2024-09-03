@@ -108,6 +108,18 @@ const App = () => {
     setBlogs(updatedBlogs);
   };
 
+  const handleDelete = async (blog) => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      await blogService.delete(blog.id);
+      const updatedBlogs = blogs.filter((b) => b.id !== blog.id);
+      setBlogs(updatedBlogs);
+      showNotification({
+        message: `${blog.title} by ${blog.author} removed`,
+        type: "success",
+      });
+    }
+  };
+
   if (!user) {
     return (
       <div>
@@ -152,7 +164,13 @@ const App = () => {
         <BlogForm handleCreate={handleCreate} />
       </Togglable>
       {sortedBlogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} onLike={handleLike} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          deletable={blog.user.id === user.id}
+          onLike={handleLike}
+          onDelete={handleDelete}
+        />
       ))}
     </div>
   );
