@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from "@playwright/test";
-import { loginWith } from "./helpers.js";
+import { createBlog, loginWith } from "./helpers.js";
 
 test.describe("Blog app", () => {
   test.beforeEach(async ({ page, request }) => {
@@ -30,6 +30,17 @@ test.describe("Blog app", () => {
     test("fails with wrong credentials", async ({ page }) => {
       await loginWith(page, "test-user", "wrong pa$$word");
       await expect(page.getByText("wrong username or password")).toBeVisible();
+    });
+  });
+
+  test.describe("When logged in", () => {
+    test.beforeEach(async ({ page }) => {
+      await loginWith(page, "test-user", "pa$$word");
+    });
+
+    test("a new blog can be created", async ({ page }) => {
+      await createBlog(page, "foo", "bar", "baz");
+      await expect(page.getByText("foo bar")).toBeVisible();
     });
   });
 });
