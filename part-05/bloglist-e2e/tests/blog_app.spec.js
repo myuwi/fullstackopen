@@ -42,5 +42,19 @@ test.describe("Blog app", () => {
       await createBlog(page, "foo", "bar", "baz");
       await expect(page.getByText("foo bar")).toBeVisible();
     });
+
+    test.describe("and blogs exists", () => {
+      test.beforeEach(async ({ page }) => {
+        await createBlog(page, "blog 1", "foo", "url");
+        await createBlog(page, "blog 2", "bar", "url");
+        await createBlog(page, "blog 3", "baz", "url");
+      });
+
+      test("a blog can be liked", async ({ page }) => {
+        await page.getByRole("button", { name: "view" }).first().click();
+        await page.getByRole("button", { name: "like" }).click();
+        await expect(page.getByText("likes 1")).toBeVisible();
+      });
+    });
   });
 });
