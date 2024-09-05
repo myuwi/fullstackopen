@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from "@playwright/test";
-import { createBlog, loginWith } from "./helpers.js";
+import { createBlog, likeBlog, loginWith } from "./helpers.js";
 
 test.describe("Blog app", () => {
   test.beforeEach(async ({ page, request }) => {
@@ -79,6 +79,16 @@ test.describe("Blog app", () => {
         await page.getByRole("button", { name: "view" }).first().click();
         const deleteButton = page.getByRole("button", { name: "remove" });
         await expect(deleteButton).not.toBeVisible();
+      });
+
+      test("blogs are ordered based on number of likes", async ({ page }) => {
+        await likeBlog(page, 0, 1);
+        await likeBlog(page, 1, 3);
+        await likeBlog(page, 2, 2);
+
+        await expect(page.locator(".blog").nth(0)).toHaveText(/blog 2 bar/);
+        await expect(page.locator(".blog").nth(1)).toHaveText(/blog 3 baz/);
+        await expect(page.locator(".blog").nth(2)).toHaveText(/blog 1 foo/);
       });
     });
   });

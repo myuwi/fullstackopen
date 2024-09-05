@@ -12,3 +12,15 @@ export const createBlog = async (page, title, author, url) => {
   await page.getByRole("button", { name: "create" }).click();
   await page.getByText(`${title} ${author}`).waitFor();
 };
+
+/**
+ * Like blog in the `n`th position `amount` times
+ */
+export const likeBlog = async (page, n, amount) => {
+  await page.getByRole("button", { name: "view" }).nth(n).click();
+  for (let i = 1; i <= amount; i++) {
+    await page.getByRole("button", { name: "like" }).click();
+    await page.getByText(`likes ${i}`).waitFor();
+  }
+  await page.getByRole("button", { name: "hide" }).click();
+};
