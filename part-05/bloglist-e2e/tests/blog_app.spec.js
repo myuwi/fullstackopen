@@ -12,6 +12,13 @@ test.describe("Blog app", () => {
         password: "pa$$word",
       },
     });
+    await request.post("/api/users", {
+      data: {
+        name: "Another User",
+        username: "another-user",
+        password: "d!ff€rent-pa$$word",
+      },
+    });
 
     await page.goto("/");
   });
@@ -62,6 +69,16 @@ test.describe("Blog app", () => {
         await page.getByRole("button", { name: "remove" }).click();
         await expect(page.getByText("blog 1 by foo removed")).toBeVisible();
         await expect(page.getByText("blog 1 foo")).not.toBeVisible();
+      });
+
+      test("a blog can not be deleted by a user that is not its creator", async ({
+        page,
+      }) => {
+        await page.getByRole("button", { name: "logout" }).click();
+        await loginWith(page, "another-user", "d!ff€rent-pa$$word");
+        await page.getByRole("button", { name: "view" }).first().click();
+        const deleteButton = page.getByRole("button", { name: "remove" });
+        await expect(deleteButton).not.toBeVisible();
       });
     });
   });
