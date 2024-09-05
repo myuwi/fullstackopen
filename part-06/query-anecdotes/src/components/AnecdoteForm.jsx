@@ -13,6 +13,10 @@ const AnecdoteForm = () => {
       queryClient.setQueryData(["anecdotes"], anecdotes.concat(newAnecdote));
       showNotification(`anecdote '${newAnecdote.content}' added`);
     },
+    onError: (err) => {
+      const errorMessage = err.response?.data?.error || err.message;
+      showNotification(errorMessage);
+    },
   });
 
   const onCreate = (ev) => {
