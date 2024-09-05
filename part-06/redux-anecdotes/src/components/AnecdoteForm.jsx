@@ -10,7 +10,7 @@ const AnecdoteForm = () => {
     const content = ev.target.anecdote.value;
     ev.target.anecdote.value = "";
     dispatch(createAnecdote(content));
-    dispatch(setNotification(`you created '${content}'`));
+    dispatch(setNotification(`you created '${content}'`, 5));
   };
 
   return (
