@@ -6,12 +6,19 @@ import Togglable from "./components/Togglable";
 import { useNotification } from "./contexts/NotificationContext";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
-import { useBlogsQuery, useCreateBlogMutation } from "./queries/blogs";
+import {
+  useBlogsQuery,
+  useCreateBlogMutation,
+  useLikeBlogMutation,
+  useDeleteBlogMutation,
+} from "./queries/blogs";
 
 const App = () => {
   const { data: blogs = [] } = useBlogsQuery();
   const sortedBlogs = blogs.toSorted((a, b) => b.likes - a.likes);
   const { mutateAsync: createBlog } = useCreateBlogMutation();
+  const { mutateAsync: likeBlog } = useLikeBlogMutation();
+  const { mutateAsync: deleteBlog } = useDeleteBlogMutation();
 
   const { showNotification, hideNotification } = useNotification();
 
@@ -74,22 +81,11 @@ const App = () => {
     }
   };
 
-  const handleLike = async (blog) => {
-    const updatedBlog = await blogService.update(blog.id, {
-      ...blog,
-      likes: blog.likes + 1,
-    });
-    const updatedBlogs = blogs.map((blog) =>
-      blog.id === updatedBlog.id ? updatedBlog : blog,
-    );
-    // setBlogs(updatedBlogs);
-  };
+  const handleLike = async (blog) => likeBlog(blog);
 
   const handleDelete = async (blog) => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      await blogService.delete(blog.id);
-      const updatedBlogs = blogs.filter((b) => b.id !== blog.id);
-      // setBlogs(updatedBlogs);
+      await deleteBlog(blog);
       showNotification({
         message: `${blog.title} by ${blog.author} removed`,
         type: "success",
