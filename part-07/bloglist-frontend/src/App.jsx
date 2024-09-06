@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import { useNotification } from "./contexts/NotificationContext";
-import blogService from "./services/blogs";
-import loginService from "./services/login";
+import { useUser } from "./contexts/UserContext";
 import {
   useBlogsQuery,
   useCreateBlogMutation,
@@ -21,31 +20,18 @@ const App = () => {
   const { mutateAsync: deleteBlog } = useDeleteBlogMutation();
 
   const { showNotification, hideNotification } = useNotification();
+  const { user, login, logout } = useUser();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
 
   const blogFormRef = useRef(null);
-
-  useEffect(() => {
-    const loggedUser = window.localStorage.getItem("blogsUser");
-    if (loggedUser) {
-      const user = JSON.parse(loggedUser);
-      blogService.setToken(user.token);
-      setUser(user);
-    }
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const user = await loginService.login({ username, password });
-      window.localStorage.setItem("blogsUser", JSON.stringify(user));
-
-      blogService.setToken(user.token);
-      setUser(user);
+      await login(username, password);
       hideNotification();
       setUsername("");
       setPassword("");
@@ -58,8 +44,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    window.localStorage.removeItem("blogsUser");
-    setUser(null);
+    logout();
     hideNotification();
   };
 
