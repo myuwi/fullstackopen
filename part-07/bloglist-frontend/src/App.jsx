@@ -6,26 +6,20 @@ import Togglable from "./components/Togglable";
 import { useNotification } from "./contexts/NotificationContext";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import { useBlogsQuery, useCreateBlogMutation } from "./queries/blogs";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  const { data: blogs = [] } = useBlogsQuery();
   const sortedBlogs = blogs.toSorted((a, b) => b.likes - a.likes);
+  const { mutateAsync: createBlog } = useCreateBlogMutation();
 
   const { showNotification, hideNotification } = useNotification();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
 
   const blogFormRef = useRef(null);
-
-  const fetchBlogs = async () => {
-    const blogs = await blogService.getAll();
-    setBlogs(blogs);
-  };
-
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
 
   useEffect(() => {
     const loggedUser = window.localStorage.getItem("blogsUser");
@@ -62,12 +56,11 @@ const App = () => {
     hideNotification();
   };
 
-  const handleCreate = async (e) => {
+  const handleCreate = async (blog) => {
     try {
-      const createdBlog = await blogService.create(e);
-      setBlogs(blogs.concat(createdBlog));
+      await createBlog(blog);
       showNotification({
-        message: `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
+        message: `a new blog ${blog.title} by ${blog.author} added`,
         type: "success",
       });
       blogFormRef.current.toggleVisibility();
@@ -89,14 +82,14 @@ const App = () => {
     const updatedBlogs = blogs.map((blog) =>
       blog.id === updatedBlog.id ? updatedBlog : blog,
     );
-    setBlogs(updatedBlogs);
+    // setBlogs(updatedBlogs);
   };
 
   const handleDelete = async (blog) => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
       await blogService.delete(blog.id);
       const updatedBlogs = blogs.filter((b) => b.id !== blog.id);
-      setBlogs(updatedBlogs);
+      // setBlogs(updatedBlogs);
       showNotification({
         message: `${blog.title} by ${blog.author} removed`,
         type: "success",
