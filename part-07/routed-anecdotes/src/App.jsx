@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, useMatch } from "react-router-dom";
 
 import About from "./components/About";
 import AnecdoteList from "./components/AnecdoteList";
 import CreateNew from "./components/CreateNew";
 import Footer from "./components/Footer";
 import Menu from "./components/Menu";
+import Anecdote from "./components/Anecdote";
 
 const initialAnecdotes = [
   {
@@ -27,14 +28,16 @@ const initialAnecdotes = [
 const App = () => {
   const [anecdotes, setAnecdotes] = useState(initialAnecdotes);
 
+  const match = useMatch("/anecdotes/:id");
+  const anecdoteById = (id) => anecdotes.find((a) => a.id === id);
+  const anecdote = match ? anecdoteById(Number(match.params.id)) : null;
+
   const [notification, setNotification] = useState("");
 
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000);
     setAnecdotes(anecdotes.concat(anecdote));
   };
-
-  const anecdoteById = (id) => anecdotes.find((a) => a.id === id);
 
   const vote = (id) => {
     const anecdote = anecdoteById(id);
@@ -48,18 +51,20 @@ const App = () => {
   };
 
   return (
-    <Router>
-      <div>
-        <h1>Software anecdotes</h1>
-        <Menu />
-        <Routes>
-          <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/create" element={<CreateNew addNew={addNew} />} />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+    <div>
+      <h1>Software anecdotes</h1>
+      <Menu />
+      <Routes>
+        <Route
+          path="/anecdotes/:id"
+          element={<Anecdote anecdote={anecdote} />}
+        />
+        <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/create" element={<CreateNew addNew={addNew} />} />
+      </Routes>
+      <Footer />
+    </div>
   );
 };
 
