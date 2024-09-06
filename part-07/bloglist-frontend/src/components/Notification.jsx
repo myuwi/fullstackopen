@@ -1,9 +1,10 @@
 import PropTypes from "prop-types";
+import { useNotification } from "../contexts/NotificationContext";
 
-const Notification = ({ notification }) => {
-  if (!notification) {
-    return null;
-  }
+const Notification = () => {
+  const { notification } = useNotification();
+
+  if (!notification) return null;
 
   return (
     <div className={`notification notification-${notification.type}`}>

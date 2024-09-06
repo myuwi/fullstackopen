@@ -3,14 +3,15 @@ import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
+import { useNotification } from "./contexts/NotificationContext";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const sortedBlogs = blogs.toSorted((a, b) => b.likes - a.likes);
-  const [notification, setNotification] = useState(null);
-  const notificationHideTimeout = useRef(null);
+
+  const { showNotification, hideNotification } = useNotification();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -34,23 +35,6 @@ const App = () => {
       setUser(user);
     }
   }, []);
-
-  const hideNotification = () => {
-    setNotification(null);
-    notificationHideTimeout.current = null;
-  };
-
-  const showNotification = (data) => {
-    // Cancel existing notification hide timeout when a new notification
-    // is created so old timeout doesn't hide the new notification
-    if (notificationHideTimeout.current) {
-      clearTimeout(notificationHideTimeout.current);
-    }
-
-    setNotification(data);
-
-    notificationHideTimeout.current = setTimeout(hideNotification, 5000);
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -124,7 +108,7 @@ const App = () => {
     return (
       <div>
         <h2>log in to application</h2>
-        <Notification notification={notification} />
+        <Notification />
         <form onSubmit={handleLogin}>
           <div>
             username
@@ -155,7 +139,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification notification={notification} />
+      <Notification />
       <p>
         {user.name || user.username} logged in
         <button onClick={handleLogout}>logout</button>
