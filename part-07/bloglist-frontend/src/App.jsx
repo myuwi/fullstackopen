@@ -4,10 +4,12 @@ import { Routes, Route } from "react-router-dom";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import BlogList from "./components/BlogList";
+import Navbar from "./components/Navbar";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import User from "./components/User";
 import Users from "./components/Users";
+
 import { useNotification } from "./contexts/NotificationContext";
 import { useUser } from "./contexts/UserContext";
 import { useCreateBlogMutation } from "./queries/blogs";
@@ -16,7 +18,7 @@ const App = () => {
   const { mutateAsync: createBlog } = useCreateBlogMutation();
 
   const { showNotification, hideNotification } = useNotification();
-  const { user, login, logout } = useUser();
+  const { user, login } = useUser();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -37,11 +39,6 @@ const App = () => {
         type: "error",
       });
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    hideNotification();
   };
 
   const handleCreate = async (blog) => {
@@ -96,12 +93,9 @@ const App = () => {
 
   return (
     <div>
+      <Navbar />
       <h2>blogs</h2>
       <Notification />
-      <p>
-        {user.name || user.username} logged in
-        <button onClick={handleLogout}>logout</button>
-      </p>
       <Routes>
         <Route
           path="/"
