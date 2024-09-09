@@ -1,38 +1,59 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
+import React from "react";
+import { useMatch, useNavigate } from "react-router-dom";
 
-const Blog = ({ blog, deletable, onLike, onDelete }) => {
-  const [open, setOpen] = useState(false);
-  const toggleOpen = () => setOpen(!open);
-  const label = open ? "hide" : "view";
+import { useNotification } from "../contexts/NotificationContext";
+import { useUser } from "../contexts/UserContext";
+import {
+  useBlogsQuery,
+  useLikeBlogMutation,
+  useDeleteBlogMutation,
+} from "../queries/blogs";
 
-  const handleLike = () => onLike(blog);
-  const handleDelete = () => onDelete(blog);
+const BlogPage = () => {
+  const { data: blogs = [] } = useBlogsQuery();
+  const { user } = useUser();
+  const match = useMatch("/blogs/:id");
+  const id = match?.params.id;
+  const blog = blogs.find((blog) => blog.id === id);
+
+  const deletable = !!user && blog?.user.id === user.id;
+
+  const { mutateAsync: likeBlog } = useLikeBlogMutation();
+  const { mutateAsync: deleteBlog } = useDeleteBlogMutation();
+
+  const navigate = useNavigate();
+  const { showNotification } = useNotification();
+
+  const handleLike = async () => likeBlog(blog);
+
+  const handleDelete = async () => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      await deleteBlog(blog);
+      showNotification({
+        message: `${blog.title} by ${blog.author} removed`,
+        type: "success",
+      });
+      navigate("/");
+    }
+  };
+
+  if (!blog) return null;
 
   return (
-    <div className="blog">
+    <div>
+      <h2>{blog.title}</h2>
       <div>
-        {blog.title} {blog.author} <button onClick={toggleOpen}>{label}</button>
-      </div>
-      {open && (
         <div>
-          <div>{blog.url}</div>
-          <div>
-            likes {blog.likes} <button onClick={handleLike}>like</button>
-          </div>
-          <div>{blog.user.name || blog.user.username}</div>
-          {deletable && <button onClick={handleDelete}>remove</button>}
+          <a href={blog.url}>{blog.url}</a>
         </div>
-      )}
+        <div>
+          {blog.likes} likes <button onClick={handleLike}>like</button>
+        </div>
+        <div>added by {blog.user.name || blog.user.username}</div>
+        {deletable && <button onClick={handleDelete}>remove</button>}
+      </div>
     </div>
   );
 };
 
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
-  deletable: PropTypes.bool.isRequired,
-  onLike: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-};
-
-export default Blog;
+export default BlogPage;

@@ -3,25 +3,17 @@ import { Routes, Route } from "react-router-dom";
 
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
+import BlogList from "./components/BlogList";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import User from "./components/User";
 import Users from "./components/Users";
 import { useNotification } from "./contexts/NotificationContext";
 import { useUser } from "./contexts/UserContext";
-import {
-  useBlogsQuery,
-  useCreateBlogMutation,
-  useLikeBlogMutation,
-  useDeleteBlogMutation,
-} from "./queries/blogs";
+import { useCreateBlogMutation } from "./queries/blogs";
 
 const App = () => {
-  const { data: blogs = [] } = useBlogsQuery();
-  const sortedBlogs = blogs.toSorted((a, b) => b.likes - a.likes);
   const { mutateAsync: createBlog } = useCreateBlogMutation();
-  const { mutateAsync: likeBlog } = useLikeBlogMutation();
-  const { mutateAsync: deleteBlog } = useDeleteBlogMutation();
 
   const { showNotification, hideNotification } = useNotification();
   const { user, login, logout } = useUser();
@@ -67,18 +59,6 @@ const App = () => {
       });
       // ugly and spaghetti, but simplest way to cancel clearing fields on error
       throw err;
-    }
-  };
-
-  const handleLike = async (blog) => likeBlog(blog);
-
-  const handleDelete = async (blog) => {
-    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      await deleteBlog(blog);
-      showNotification({
-        message: `${blog.title} by ${blog.author} removed`,
-        type: "success",
-      });
     }
   };
 
@@ -130,18 +110,11 @@ const App = () => {
               <Togglable buttonLabel="new blog" ref={blogFormRef}>
                 <BlogForm handleCreate={handleCreate} />
               </Togglable>
-              {sortedBlogs.map((blog) => (
-                <Blog
-                  key={blog.id}
-                  blog={blog}
-                  deletable={blog.user.id === user.id}
-                  onLike={handleLike}
-                  onDelete={handleDelete}
-                />
-              ))}
+              <BlogList />
             </div>
           }
         ></Route>
+        <Route path="/blogs/:id" element={<Blog />} />
         <Route path="/users" element={<Users />} />
         <Route path="/users/:id" element={<User />} />
       </Routes>
