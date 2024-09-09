@@ -52,6 +52,12 @@ const BlogPage = () => {
         <div>added by {blog.user.name || blog.user.username}</div>
         {deletable && <button onClick={handleDelete}>remove</button>}
       </div>
+      <h3>comments</h3>
+      <ul>
+        {blog.comments.map((comment, i) => {
+          return <li key={i}>{comment}</li>;
+        })}
+      </ul>
     </div>
   );
 };
