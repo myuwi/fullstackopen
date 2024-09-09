@@ -20,6 +20,23 @@ export const useCreateBlogMutation = () => {
   });
 };
 
+export const useCommentBlogMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ blogId, comment }) => {
+      return blogService.comment(blogId, comment);
+    },
+    onSuccess: (updatedBlog) => {
+      const blogs = queryClient.getQueryData(["blogs"]);
+      const updatedBlogs = blogs.map((blog) =>
+        blog.id === updatedBlog.id ? updatedBlog : blog,
+      );
+      queryClient.setQueryData(["blogs"], updatedBlogs);
+    },
+  });
+};
+
 export const useLikeBlogMutation = () => {
   const queryClient = useQueryClient();
 

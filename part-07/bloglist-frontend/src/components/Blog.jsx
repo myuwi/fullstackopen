@@ -1,10 +1,12 @@
 import React from "react";
 import { useMatch, useNavigate } from "react-router-dom";
 
+import CommentForm from "./CommentForm";
 import { useNotification } from "../contexts/NotificationContext";
 import { useUser } from "../contexts/UserContext";
 import {
   useBlogsQuery,
+  useCommentBlogMutation,
   useLikeBlogMutation,
   useDeleteBlogMutation,
 } from "../queries/blogs";
@@ -18,6 +20,7 @@ const BlogPage = () => {
 
   const deletable = !!user && blog?.user.id === user.id;
 
+  const { mutateAsync: addComment } = useCommentBlogMutation();
   const { mutateAsync: likeBlog } = useLikeBlogMutation();
   const { mutateAsync: deleteBlog } = useDeleteBlogMutation();
 
@@ -25,6 +28,9 @@ const BlogPage = () => {
   const { showNotification } = useNotification();
 
   const handleLike = async () => likeBlog(blog);
+
+  const handleComment = async (comment) =>
+    addComment({ blogId: blog.id, comment });
 
   const handleDelete = async () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
@@ -53,6 +59,7 @@ const BlogPage = () => {
         {deletable && <button onClick={handleDelete}>remove</button>}
       </div>
       <h3>comments</h3>
+      <CommentForm onSubmit={handleComment} />
       <ul>
         {blog.comments.map((comment, i) => {
           return <li key={i}>{comment}</li>;
