@@ -1,8 +1,11 @@
 import { useRef, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
+import Users from "./components/Users";
 import { useNotification } from "./contexts/NotificationContext";
 import { useUser } from "./contexts/UserContext";
 import {
@@ -118,18 +121,28 @@ const App = () => {
         {user.name || user.username} logged in
         <button onClick={handleLogout}>logout</button>
       </p>
-      <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm handleCreate={handleCreate} />
-      </Togglable>
-      {sortedBlogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          deletable={blog.user.id === user.id}
-          onLike={handleLike}
-          onDelete={handleDelete}
-        />
-      ))}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div>
+              <Togglable buttonLabel="new blog" ref={blogFormRef}>
+                <BlogForm handleCreate={handleCreate} />
+              </Togglable>
+              {sortedBlogs.map((blog) => (
+                <Blog
+                  key={blog.id}
+                  blog={blog}
+                  deletable={blog.user.id === user.id}
+                  onLike={handleLike}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          }
+        ></Route>
+        <Route path="/users" element={<Users />} />
+      </Routes>
     </div>
   );
 };
