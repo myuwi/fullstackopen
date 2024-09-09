@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button, Group, TextInput } from "@mantine/core";
 import PropTypes from "prop-types";
 
 const BlogForm = ({ handleCreate }) => {
@@ -16,38 +17,27 @@ const BlogForm = ({ handleCreate }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>create new</h2>
-      <div>
-        title:
-        <input
-          aria-label="Title"
-          name="Title"
-          type="text"
+      <Group align="flex-end" justify="stretch">
+        <TextInput
+          flex={1}
+          placeholder="Enter title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-      </div>
-      <div>
-        author:
-        <input
-          aria-label="Author"
-          name="Author"
-          type="text"
+        <TextInput
+          flex={1}
+          placeholder="Enter author"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
         />
-      </div>
-      <div>
-        url:
-        <input
-          aria-label="Url"
-          name="Url"
-          type="text"
+        <TextInput
+          flex={1}
+          placeholder="Enter url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-      </div>
-      <button type="submit">create</button>
+        <Button type="submit">Submit</Button>
+      </Group>
     </form>
   );
 };

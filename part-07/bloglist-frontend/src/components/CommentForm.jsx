@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button, Group, Stack, Textarea } from "@mantine/core";
 import PropTypes from "prop-types";
 
 const CommentForm = ({ onSubmit }) => {
@@ -12,14 +13,19 @@ const CommentForm = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        aria-label="Comment"
-        name="Comment"
-        type="text"
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-      />
-      <button type="submit">add comment</button>
+      <Stack gap="xs">
+        <Textarea
+          aria-label="Comment"
+          name="Comment"
+          type="text"
+          placeholder="Write a comment here..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+        <Group justify="flex-end">
+          <Button type="submit">Comment</Button>
+        </Group>
+      </Stack>
     </form>
   );
 };

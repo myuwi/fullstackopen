@@ -1,4 +1,5 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
+import { Button, Group } from "@mantine/core";
 import PropTypes from "prop-types";
 
 const Togglable = forwardRef((props, ref) => {
@@ -8,14 +9,16 @@ const Togglable = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({ toggleVisibility }));
 
-  const showWhenVisible = { display: visible ? "" : "none" };
-  const label = visible ? "cancel" : props.buttonLabel;
+  const showWhenVisible = { display: visible ? "" : "none", flex: 1 };
+  const label = visible ? "Cancel" : props.buttonLabel;
 
   return (
-    <div>
+    <Group gap="xs" align="flex-end">
       <div style={showWhenVisible}>{props.children}</div>
-      <button onClick={toggleVisibility}>{label}</button>
-    </div>
+      <Button onClick={toggleVisibility} color={visible ? "gray" : undefined}>
+        {label}
+      </Button>
+    </Group>
   );
 });
 

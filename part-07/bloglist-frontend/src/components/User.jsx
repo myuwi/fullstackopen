@@ -1,6 +1,8 @@
 import React from "react";
 import { useMatch } from "react-router-dom";
+import { Avatar, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { useUsersQuery } from "../queries/users";
+import BlogList from "./BlogList";
 
 const User = () => {
   const { data: users = [] } = useUsersQuery();
@@ -11,15 +13,19 @@ const User = () => {
   if (!user) return null;
 
   return (
-    <div>
-      <h2>{user.name || user.username}</h2>
-      <h3>added blogs</h3>
-      <ul>
-        {user.blogs.map((blog) => {
-          return <li key={blog.id}>{blog.title}</li>;
-        })}
-      </ul>
-    </div>
+    <Group gap="xl" align="flex-start">
+      <Paper withBorder p="xl" miw={200}>
+        <Avatar color="blue" name={user.name} size="xl" mx="auto" mb="sm" />
+        <Text ta="center">{user.name}</Text>
+        <Text ta="center" c="dimmed" size="sm">
+          @{user.username}
+        </Text>
+      </Paper>
+      <Stack flex="1">
+        <Title order={3}>Submitted blogs</Title>
+        <BlogList />
+      </Stack>
+    </Group>
   );
 };
 

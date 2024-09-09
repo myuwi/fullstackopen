@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer } from "react";
+import { createContext, useContext, useLayoutEffect, useReducer } from "react";
 import PropTypes from "prop-types";
 
 import blogService from "../services/blogs";
@@ -33,7 +33,7 @@ export const UserProvider = ({ children }) => {
     dispatch({ type: "LOG_OUT" });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const storedUser = window.localStorage.getItem("blogsUser");
     if (storedUser) {
       const user = JSON.parse(storedUser);
