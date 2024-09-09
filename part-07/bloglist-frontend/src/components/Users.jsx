@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useUsersQuery } from "../queries/users";
 
 const Users = () => {
@@ -18,7 +19,11 @@ const Users = () => {
           {users.map((user) => {
             return (
               <tr key={user.username}>
-                <td>{user.name || user.username}</td>
+                <td>
+                  <Link to={`/users/${user.id}`}>
+                    {user.name || user.username}
+                  </Link>
+                </td>
                 <td>{user.blogs.length}</td>
               </tr>
             );
