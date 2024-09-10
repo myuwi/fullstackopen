@@ -11,7 +11,7 @@ const pubsub = new PubSub();
 const resolvers = {
   Query: {
     authorCount: async () => Author.countDocuments(),
-    allAuthors: async () => Author.find({}),
+    allAuthors: async () => Author.find({}).populate("books"),
     bookCount: async () => Book.countDocuments(),
     allBooks: async (_, args) => {
       const author =
@@ -62,18 +62,6 @@ const resolvers = {
           name: args.author,
           id: uuid(),
         });
-
-        try {
-          await author.save();
-        } catch (error) {
-          throw new GraphQLError("Adding author failed", {
-            extensions: {
-              code: "BAD_USER_INPUT",
-              invalidArgs: args.author,
-              error,
-            },
-          });
-        }
       }
 
       const book = new Book({
@@ -89,6 +77,20 @@ const resolvers = {
           extensions: {
             code: "BAD_USER_INPUT",
             invalidArgs: args.title,
+            error,
+          },
+        });
+      }
+
+      author.books.push(book);
+
+      try {
+        await author.save();
+      } catch (error) {
+        throw new GraphQLError("Adding author failed", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args.author,
             error,
           },
         });
@@ -141,7 +143,7 @@ const resolvers = {
     },
   },
   Author: {
-    bookCount: async (root) => Book.countDocuments({ author: root.id }),
+    bookCount: async (root) => root.books.length,
   },
 };
 
