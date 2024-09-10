@@ -1,22 +1,40 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@apollo/client";
+import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from "../queries";
 
 const NewBook = () => {
+  const [createBook] = useMutation(ADD_BOOK, {
+    refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }],
+  });
+
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [published, setPublished] = useState("");
   const [genre, setGenre] = useState("");
   const [genres, setGenres] = useState([]);
 
-  const submit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    console.log("add book...");
+    await createBook({
+      variables: {
+        title,
+        author,
+        published: parseInt(published),
+        genres,
+      },
+    });
 
     setTitle("");
     setPublished("");
     setAuthor("");
     setGenres([]);
     setGenre("");
+
+    navigate("/books");
   };
 
   const addGenre = () => {
@@ -26,7 +44,7 @@ const NewBook = () => {
 
   return (
     <div>
-      <form onSubmit={submit}>
+      <form onSubmit={handleSubmit}>
         <div>
           title
           <input
