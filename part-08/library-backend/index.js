@@ -59,25 +59,27 @@ const resolvers = {
     allAuthors: async () => Author.find({}),
     bookCount: async () => Book.countDocuments(),
     allBooks: async (_, args) => {
-      // const predicates = [];
-      //
-      // if (args.author) {
-      //   predicates.push((book) => book.author === args.author);
-      // }
-      // if (args.genre) {
-      //   predicates.push((book) => book.genres.includes(args.genre));
-      // }
-      //
-      // return books.filter((book) => predicates.every((pred) => pred(book)));
-      return Book.find({});
+      const author =
+        args.author && (await Author.findOne({ name: args.author }));
+
+      if (args.author && !author) return [];
+
+      const opts = {
+        ...(args.author && { author: author.id }),
+        ...(args.genre && { genres: { $elemMatch: { $eq: args.genre } } }),
+      };
+
+      return Book.find(opts).populate("author");
     },
   },
   Mutation: {
-    editAuthor: (_, args) => {
-      const author = authors.find((author) => author.name === args.name);
+    editAuthor: async (_, args) => {
+      const author = await Author.findOne({ name: args.name });
       if (!author) return null;
 
       author.born = args.setBornTo;
+      await author.save();
+
       return author;
     },
     addBook: async (_, args) => {
@@ -98,12 +100,11 @@ const resolvers = {
       });
       await book.save();
 
-      return book;
+      return book.populate("author");
     },
   },
   Author: {
-    bookCount: (root) =>
-      books.filter((book) => book.author === root.name).length,
+    bookCount: async (root) => Book.countDocuments({ author: root.id }),
   },
 };
 
