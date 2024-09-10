@@ -1,5 +1,6 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import { GraphQLError } from "graphql";
 import { v4 as uuid } from "uuid";
 import mongoose from "mongoose";
 mongoose.set("strictQuery", false);
@@ -90,7 +91,18 @@ const resolvers = {
           name: args.author,
           id: uuid(),
         });
-        author.save();
+
+        try {
+          await author.save();
+        } catch (error) {
+          throw new GraphQLError("Adding author failed", {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              invalidArgs: args.author,
+              error,
+            },
+          });
+        }
       }
 
       const book = new Book({
@@ -98,7 +110,18 @@ const resolvers = {
         author: author.id,
         id: uuid(),
       });
-      await book.save();
+
+      try {
+        await book.save();
+      } catch (error) {
+        throw new GraphQLError("Adding book failed", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args.title,
+            error,
+          },
+        });
+      }
 
       return book.populate("author");
     },
