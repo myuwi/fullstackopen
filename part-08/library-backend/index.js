@@ -107,6 +107,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
+    editAuthor(name: String!, setBornTo: Int!): Author
     addBook(
       title: String!
       author: String!
@@ -135,6 +136,13 @@ const resolvers = {
     },
   },
   Mutation: {
+    editAuthor: (_, args) => {
+      const author = authors.find((author) => author.name === args.name);
+      if (!author) return null;
+
+      author.born = args.setBornTo;
+      return author;
+    },
     addBook: (_, args) => {
       const authorExists = authors.some(
         (author) => author.name === args.author,
