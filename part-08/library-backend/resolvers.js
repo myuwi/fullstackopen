@@ -1,9 +1,12 @@
 import { GraphQLError } from "graphql";
 import { v4 as uuid } from "uuid";
+import { PubSub } from "graphql-subscriptions";
 
 import Author from "./models/author.js";
 import Book from "./models/book.js";
 import User from "./models/user.js";
+
+const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -91,7 +94,10 @@ const resolvers = {
         });
       }
 
-      return book.populate("author");
+      const populatedBook = await book.populate("author");
+      pubsub.publish("BOOK_ADDED", { bookAdded: populatedBook });
+
+      return populatedBook;
     },
     createUser: async (_, args) => {
       const user = new User(args);
@@ -127,6 +133,11 @@ const resolvers = {
       };
 
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) };
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]),
     },
   },
   Author: {
