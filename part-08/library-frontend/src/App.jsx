@@ -7,7 +7,8 @@ import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import LoginForm from "./components/LoginForm";
 import Recommended from "./components/Recommended";
-import { BOOK_ADDED } from "./queries";
+import { updateBookCache } from "./utils";
+import { ALL_BOOKS, BOOK_ADDED } from "./queries";
 
 const App = () => {
   const client = useApolloClient();
@@ -16,9 +17,9 @@ const App = () => {
   );
 
   useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
-      const { title } = data.data.bookAdded;
-      window.alert(`Book added ${title}`);
+    onData: ({ client, data }) => {
+      const { bookAdded } = data.data;
+      updateBookCache(client.cache, { query: ALL_BOOKS }, bookAdded);
     },
   });
 
