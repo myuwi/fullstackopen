@@ -1,5 +1,6 @@
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
+import BooksTable from "./BooksTable";
 import { ALL_BOOKS } from "../queries";
 
 const Books = () => {
@@ -34,22 +35,7 @@ const Books = () => {
           );
         })}
       </div>
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
-          {booksInGenre.map((b) => (
-            <tr key={b.title}>
-              <td>{b.title}</td>
-              <td>{b.author.name}</td>
-              <td>{b.published}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <BooksTable books={booksInGenre} />
     </div>
   );
 };

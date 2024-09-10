@@ -27,6 +27,7 @@ const App = () => {
         <Link to="/books">books</Link>
         {token ? (
           <>
+            <Link to="/recommended">recommended</Link>
             <Link to="/add">add book</Link>
             <button onClick={handleLogout}>logout</button>
           </>
@@ -38,6 +39,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Authors />} />
         <Route path="/books" element={<Books />} />
+        <Route path="/recommended" element={<Recommended />} />
         <Route path="/add" element={<NewBook />} />
         <Route path="/login" element={<LoginForm setToken={setToken} />} />
       </Routes>
