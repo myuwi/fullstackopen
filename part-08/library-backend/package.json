@@ -1,0 +1,17 @@
+{
+  "name": "library-backend",
+  "version": "0.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.0",
+    "graphql": "^16.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
