@@ -1,5 +1,6 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import { v4 as uuid } from "uuid";
 
 // For better LSP and formatter support...
 const gql = String.raw;
@@ -104,6 +105,15 @@ const typeDefs = gql`
     allBooks(author: String, genre: String): [Book!]!
     bookCount: Int!
   }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+  }
 `;
 
 const resolvers = {
@@ -122,6 +132,25 @@ const resolvers = {
       }
 
       return books.filter((book) => predicates.every((pred) => pred(book)));
+    },
+  },
+  Mutation: {
+    addBook: (_, args) => {
+      const authorExists = authors.some(
+        (author) => author.name === args.author,
+      );
+
+      if (!authorExists) {
+        authors.push({
+          name: args.author,
+          id: uuid(),
+        });
+      }
+
+      const book = { ...args, id: uuid() };
+      books.push(book);
+
+      return book;
     },
   },
   Author: {
