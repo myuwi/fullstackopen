@@ -7,3 +7,9 @@ nav {
   gap: 1rem;
   margin-bottom: 1rem;
 }
+
+.genre-selector {
+  display: flex;
+  gap: 0.25rem;
+  margin-block: 1rem;
+}

@@ -1,15 +1,39 @@
+import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { ALL_BOOKS } from "../queries";
 
 const Books = () => {
+  const [searchParams] = useSearchParams();
+  const genre = searchParams.get("genre");
+
   const { loading, data } = useQuery(ALL_BOOKS);
-  const books = data?.allBooks ?? [];
 
   if (loading) return <div>loading...</div>;
+
+  const books = data?.allBooks ?? [];
+
+  const booksInGenre = genre
+    ? books.filter((book) => book.genres.includes(genre))
+    : books;
+
+  const genres = Array.from(new Set(books.map((book) => book.genres).flat()));
 
   return (
     <div>
       <h2>books</h2>
+      <p>
+        in genre <b>{genre ?? "all genres"}</b>
+      </p>
+      <div className="genre-selector">
+        <Link to="/books">all genres</Link>
+        {genres.map((genre) => {
+          return (
+            <Link key={genre} to={`/books?genre=${genre}`}>
+              {genre}
+            </Link>
+          );
+        })}
+      </div>
       <table>
         <tbody>
           <tr>
@@ -17,7 +41,7 @@ const Books = () => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.map((b) => (
+          {booksInGenre.map((b) => (
             <tr key={b.title}>
               <td>{b.title}</td>
               <td>{b.author.name}</td>
