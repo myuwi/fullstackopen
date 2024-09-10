@@ -1,7 +1,10 @@
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries";
 
 const BirthYearForm = () => {
+  const { data } = useQuery(ALL_AUTHORS);
+  const authors = data?.allAuthors ?? [];
+
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
   });
@@ -33,7 +36,16 @@ const BirthYearForm = () => {
       <h3>Set birthyear</h3>
       <form onSubmit={handleSubmit}>
         <div>
-          name <input name="name" type="text" />
+          name{" "}
+          <select name="name">
+            {authors.map((author) => {
+              return (
+                <option key={author.name} value={author.name}>
+                  {author.name}
+                </option>
+              );
+            })}
+          </select>
         </div>
         <div>
           born <input name="born" type="text" />
