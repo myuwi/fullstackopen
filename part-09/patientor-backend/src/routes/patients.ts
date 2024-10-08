@@ -1,7 +1,6 @@
 import express, { Response } from "express";
 import patientService from "../services/patientService";
-import { PublicPatient } from "../types";
-import { toNewPatient } from "../utils";
+import { NewPatientSchema, PublicPatient } from "../types";
 
 const router = express.Router();
 
@@ -11,7 +10,7 @@ router.get("/", (_req, res: Response<PublicPatient[]>) => {
 
 router.post("/", (req, res) => {
   try {
-    const newPatient = toNewPatient(req.body);
+    const newPatient = NewPatientSchema.parse(req.body);
     const patient = patientService.addPatient(newPatient);
 
     res.status(201).json(patient);
