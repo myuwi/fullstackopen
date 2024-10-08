@@ -1,6 +1,7 @@
 import express, { Response } from "express";
 import patientService from "../services/patientService";
-import { Patient, PublicPatient } from "../types";
+import { PublicPatient } from "../types";
+import { toNewPatient } from "../utils";
 
 const router = express.Router();
 
@@ -8,21 +9,17 @@ router.get("/", (_req, res: Response<PublicPatient[]>) => {
   res.json(patientService.getPublicPatients());
 });
 
-router.post("/", (req, res: Response<Patient>) => {
-  const { name, dateOfBirth, ssn, gender, occupation } = req.body as Record<
-    string,
-    string
-  >;
+router.post("/", (req, res) => {
+  try {
+    const newPatient = toNewPatient(req.body);
+    const patient = patientService.addPatient(newPatient);
 
-  const patient = patientService.addPatient({
-    name,
-    dateOfBirth,
-    ssn,
-    gender,
-    occupation,
-  });
-
-  res.status(201).json(patient);
+    res.status(201).json(patient);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Something went wrong.";
+    res.status(400).json({ message });
+  }
 });
 
 export default router;
