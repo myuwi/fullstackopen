@@ -1,4 +1,4 @@
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
   const bmi = weight / Math.pow(height / 100, 2);
 
   if (bmi < 16) return "Underweight (Severe thinness)";
@@ -11,32 +11,34 @@ const calculateBmi = (height: number, weight: number): string => {
   else return "Obese (Class III)";
 };
 
-interface Args {
-  height: number;
-  weight: number;
-}
-
-const parseArgs = (args: string[]): Args => {
-  if (args.length < 4) throw new Error("Not enough arguments");
-  if (args.length > 4) throw new Error("Too many arguments");
-
-  const height = Number(args[2]);
-  const weight = Number(args[3]);
-
-  if (!isNaN(height) && !isNaN(weight)) {
-    return {
-      height,
-      weight,
-    };
-  } else {
-    throw new Error("Provided values were not numbers!");
+if (require.main === module) {
+  interface Args {
+    height: number;
+    weight: number;
   }
-};
 
-try {
-  const { height, weight } = parseArgs(process.argv);
-  console.log(calculateBmi(height, weight));
-} catch (error: unknown) {
-  const message = error instanceof Error ? error.message : error;
-  console.log("Something went wrong:", message);
+  const parseArgs = (args: string[]): Args => {
+    if (args.length < 4) throw new Error("Not enough arguments");
+    if (args.length > 4) throw new Error("Too many arguments");
+
+    const height = Number(args[2]);
+    const weight = Number(args[3]);
+
+    if (!isNaN(height) && !isNaN(weight)) {
+      return {
+        height,
+        weight,
+      };
+    } else {
+      throw new Error("Provided values were not numbers!");
+    }
+  };
+
+  try {
+    const { height, weight } = parseArgs(process.argv);
+    console.log(calculateBmi(height, weight));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : error;
+    console.log("Something went wrong:", message);
+  }
 }
