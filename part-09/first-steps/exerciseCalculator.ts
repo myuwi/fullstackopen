@@ -4,7 +4,7 @@ const ratings = [
   "goal reached, great job!",
 ];
 
-const calculateExercises = (exercises: number[], target: number) => {
+const calculateExercises = (target: number, exercises: number[]) => {
   const periodLength = exercises.length;
   const trainingDays = exercises.filter((h) => h > 0).length;
   const totalHours = exercises.reduce((a, b) => a + b);
@@ -25,6 +25,32 @@ const calculateExercises = (exercises: number[], target: number) => {
   };
 };
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 3));
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 1));
+interface Args {
+  target: number;
+  exercises: number[];
+}
+
+const parseArgs = (args: string[]): Args => {
+  if (args.length < 4) throw new Error("Not enough arguments");
+
+  const [target, ...exercises] = args.slice(2).map((num) => {
+    const parsed = Number(num);
+    if (isNaN(parsed)) {
+      throw new Error("Provided values were not numbers!");
+    }
+    return parsed;
+  });
+
+  return {
+    target,
+    exercises,
+  };
+};
+
+try {
+  const { target, exercises } = parseArgs(process.argv);
+  console.log(calculateExercises(target, exercises));
+} catch (error: unknown) {
+  const message = error instanceof Error ? error.message : error;
+  console.log("Something went wrong:", message);
+}
