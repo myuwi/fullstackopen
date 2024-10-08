@@ -4,7 +4,7 @@ const ratings = [
   "goal reached, great job!",
 ];
 
-const calculateExercises = (target: number, exercises: number[]) => {
+export const calculateExercises = (target: number, exercises: number[]) => {
   const periodLength = exercises.length;
   const trainingDays = exercises.filter((h) => h > 0).length;
   const totalHours = exercises.reduce((a, b) => a + b);
@@ -25,32 +25,34 @@ const calculateExercises = (target: number, exercises: number[]) => {
   };
 };
 
-interface Args {
-  target: number;
-  exercises: number[];
-}
+if (require.main === module) {
+  interface Args {
+    target: number;
+    exercises: number[];
+  }
 
-const parseArgs = (args: string[]): Args => {
-  if (args.length < 4) throw new Error("Not enough arguments");
+  const parseArgs = (args: string[]): Args => {
+    if (args.length < 4) throw new Error("Not enough arguments");
 
-  const [target, ...exercises] = args.slice(2).map((num) => {
-    const parsed = Number(num);
-    if (isNaN(parsed)) {
-      throw new Error("Provided values were not numbers!");
-    }
-    return parsed;
-  });
+    const [target, ...exercises] = args.slice(2).map((num) => {
+      const parsed = Number(num);
+      if (isNaN(parsed)) {
+        throw new Error("Provided values were not numbers!");
+      }
+      return parsed;
+    });
 
-  return {
-    target,
-    exercises,
+    return {
+      target,
+      exercises,
+    };
   };
-};
 
-try {
-  const { target, exercises } = parseArgs(process.argv);
-  console.log(calculateExercises(target, exercises));
-} catch (error: unknown) {
-  const message = error instanceof Error ? error.message : error;
-  console.log("Something went wrong:", message);
+  try {
+    const { target, exercises } = parseArgs(process.argv);
+    console.log(calculateExercises(target, exercises));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : error;
+    console.log("Something went wrong:", message);
+  }
 }

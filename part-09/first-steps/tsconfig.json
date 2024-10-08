@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
-    "moduleDetection": "force",
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
