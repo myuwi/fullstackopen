@@ -1,5 +1,6 @@
+import { v4 as uuid } from "uuid";
 import patients from "../data/patients";
-import { PublicPatient } from "../types";
+import { NewPatient, Patient, PublicPatient } from "../types";
 
 const getPublicPatients = (): PublicPatient[] => {
   return patients.map(({ id, name, gender, occupation, dateOfBirth }) => ({
@@ -11,6 +12,13 @@ const getPublicPatients = (): PublicPatient[] => {
   }));
 };
 
+const addPatient = (patient: NewPatient): Patient => {
+  const newPatient = { id: uuid(), ...patient };
+  patients.push(newPatient);
+  return newPatient;
+};
+
 export default {
   getPublicPatients,
+  addPatient,
 };
