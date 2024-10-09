@@ -1,4 +1,5 @@
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
+import axios from "axios";
 import diaryService from "../services/diaries";
 import { NonSensitiveDiary } from "../types";
 
@@ -19,6 +20,8 @@ interface Props {
 }
 
 const DiaryForm = ({ setDiaries }: Props) => {
+  const [error, setError] = useState("");
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -29,21 +32,31 @@ const DiaryForm = ({ setDiaries }: Props) => {
     const weather = formData.get("weather") as string;
     const comment = formData.get("comment") as string;
 
-    const newDiary = await diaryService.addDiary({
-      date,
-      visibility,
-      weather,
-      comment,
-    });
+    try {
+      const newDiary = await diaryService.addDiary({
+        date,
+        visibility,
+        weather,
+        comment,
+      });
 
-    setDiaries((diaries) => diaries.concat(newDiary));
+      setDiaries((diaries) => diaries.concat(newDiary));
+      setError("");
 
-    form.reset();
+      form.reset();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data);
+      } else {
+        setError("Something went wrong.");
+      }
+    }
   };
 
   return (
     <div>
       <h2>Add new entry</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <Field name="date" />
         <Field name="visibility" />
