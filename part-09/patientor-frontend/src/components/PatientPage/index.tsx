@@ -4,6 +4,9 @@ import { useMatch } from "react-router-dom";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 
+import patientService from "../../services/patients";
+import { Diagnosis, Gender, Patient } from "../../types";
+
 interface GenderIconProps {
   gender: Gender;
 }
@@ -19,25 +22,26 @@ const GenderIcon = ({ gender }: GenderIconProps) => {
   }
 };
 
-import patientService from "../../services/patients";
-import { Gender, Patient } from "../../types";
+interface Props {
+  diagnoses: Diagnosis[];
+}
 
-const PatientPage = () => {
+const PatientPage = ({ diagnoses }: Props) => {
   const match = useMatch("/patients/:id");
   const id = match?.params.id;
 
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
 
-  const fetchPatient = async (id: string) => {
-    try {
-      const data = await patientService.get(id);
-      setPatient(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
+    const fetchPatient = async (id: string) => {
+      try {
+        const data = await patientService.get(id);
+        setPatient(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     if (id) {
       fetchPatient(id);
     }
@@ -61,7 +65,13 @@ const PatientPage = () => {
             </p>
             <ul>
               {entry.diagnosisCodes?.map((code) => {
-                return <li key={code}>{code}</li>;
+                const diagnosisInfo = diagnoses.find((d) => d.code === code);
+
+                return (
+                  <li key={code}>
+                    {code} {diagnosisInfo?.name}
+                  </li>
+                );
               })}
             </ul>
           </div>
