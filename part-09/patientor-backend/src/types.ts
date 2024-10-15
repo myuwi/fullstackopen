@@ -1,4 +1,14 @@
 import { z } from "zod";
+import {
+  BaseEntrySchema,
+  EntrySchema,
+  HealthCheckEntrySchema,
+  HospitalEntrySchema,
+  NewPatientSchema,
+  OccupationalHealthcareEntrySchema,
+  PatientSchema,
+  PublicPatientSchema,
+} from "./schemas";
 
 export interface Diagnosis {
   code: string;
@@ -11,26 +21,20 @@ export enum Gender {
   Female = "female",
   Other = "other",
 }
-export const GenderSchema = z.nativeEnum(Gender);
 
-export const EntrySchema = z.object({});
+export type BaseEntry = z.infer<typeof BaseEntrySchema>;
+export type HospitalEntry = z.infer<typeof HospitalEntrySchema>;
+export type OccupationalHealthcareEntry = z.infer<
+  typeof OccupationalHealthcareEntrySchema
+>;
+export enum HealthCheckRating {
+  "Healthy" = 0,
+  "LowRisk" = 1,
+  "HighRisk" = 2,
+  "CriticalRisk" = 3,
+}
+export type HealthCheckEntry = z.infer<typeof HealthCheckEntrySchema>;
 export type Entry = z.infer<typeof EntrySchema>;
-
-export const PatientSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  dateOfBirth: z.string().date(),
-  ssn: z.string(),
-  gender: GenderSchema,
-  occupation: z.string(),
-  entries: z.array(EntrySchema),
-});
-
-export const NewPatientSchema = PatientSchema.omit({ id: true });
-export const PublicPatientSchema = PatientSchema.omit({
-  ssn: true,
-  entries: true,
-});
 
 export type Patient = z.infer<typeof PatientSchema>;
 export type NewPatient = z.infer<typeof NewPatientSchema>;

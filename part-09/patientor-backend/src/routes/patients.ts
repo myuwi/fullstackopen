@@ -1,6 +1,9 @@
 import express, { Response } from "express";
 import patientService from "../services/patientService";
-import { NewPatientSchema, PublicPatient } from "../types";
+import { NewPatientSchema } from "../schemas";
+import { PublicPatient } from "../types";
+import { ZodError } from "zod";
+import { prettyZodError } from "../utils";
 
 const router = express.Router();
 
@@ -25,8 +28,8 @@ router.post("/", (req, res) => {
     res.status(201).json(patient);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "Something went wrong.";
-    res.status(400).json({ message });
+      err instanceof ZodError ? prettyZodError(err) : "Something went wrong.";
+    res.status(400).send(message);
   }
 });
 

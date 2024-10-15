@@ -1,3 +1,4 @@
+import { ZodError } from "zod";
 import { Gender, NewPatient } from "./types";
 
 const isString = (v: unknown): v is string => typeof v === "string";
@@ -53,5 +54,16 @@ export const toNewPatient = (obj: unknown): NewPatient => {
     ssn: parseString(obj.ssn, "ssn"),
     gender: parseGender(obj.gender, "gender"),
     occupation: parseString(obj.occupation, "occupation"),
+    entries: [],
   };
+};
+
+export const prettyZodError = (error: ZodError): string => {
+  const message = Object.entries(error.flatten().fieldErrors)
+    .map(([k, v]) => {
+      return `${k}: ${v!.join(", ")}.`;
+    })
+    .join(" ");
+
+  return message;
 };
