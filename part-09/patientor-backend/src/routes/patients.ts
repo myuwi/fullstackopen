@@ -8,6 +8,15 @@ router.get("/", (_req, res: Response<PublicPatient[]>) => {
   res.json(patientService.getPublicPatients());
 });
 
+router.get("/:id", (req, res) => {
+  const patient = patientService.getPatient(req.params.id);
+  if (!patient) {
+    res.sendStatus(404);
+    return;
+  }
+  res.json(patient);
+});
+
 router.post("/", (req, res) => {
   try {
     const newPatient = NewPatientSchema.parse(req.body);
