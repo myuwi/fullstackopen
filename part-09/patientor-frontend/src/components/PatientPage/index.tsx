@@ -6,6 +6,7 @@ import MaleIcon from "@mui/icons-material/Male";
 
 import patientService from "../../services/patients";
 import { Diagnosis, Gender, Patient } from "../../types";
+import EntryDetails from "./EntryDetails";
 
 interface GenderIconProps {
   gender: Gender;
@@ -59,22 +60,7 @@ const PatientPage = ({ diagnoses }: Props) => {
       <h3>entries</h3>
       {patient.entries.map((entry) => {
         return (
-          <div key={entry.id}>
-            <p>
-              {entry.date} {entry.description}
-            </p>
-            <ul>
-              {entry.diagnosisCodes?.map((code) => {
-                const diagnosisInfo = diagnoses.find((d) => d.code === code);
-
-                return (
-                  <li key={code}>
-                    {code} {diagnosisInfo?.name}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          <EntryDetails key={entry.id} diagnoses={diagnoses} entry={entry} />
         );
       })}
     </div>
